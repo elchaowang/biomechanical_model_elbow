@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 from bilateral_filters import *
 from Inverse_dynamics import *
 from biomechanical_algorithms import *
+import threading
+import math
+import datetime
+import multiprocessing as mp
 import time
 
 
@@ -33,7 +37,7 @@ muscle_group = {'TRIlong': Muscle('TRIlong', PCSA=15.93, max_iso_force=771.8 * 1
                 'PRO': Muscle('PRO', 4.11, max_iso_force=557.2 * 1, LM_opti=0.051972967699792136)}
 
 
-def start_simulation(PATH, testNum):
+def start_simulation(PATH, testNum, cost):
     '''
     :param recons_datafile: filename of reconstructed datafile which contains the elbow-flexion angle, elbow-flexion accelerations,
                             movement arms, normalized muscle fiber lengths, fiber lengthening velocities
@@ -64,7 +68,7 @@ def start_simulation(PATH, testNum):
             frame_LVs[muscle] = LM_velos[muscle][i]
         tmp_frame = Frame(time_inst=time_seq[i], elbow_flexion=elbow_flex_[i], acce=elbow_flex_ac_[i], elbow_supination=80,
                           frame_MAs=frame_MAs, frame_LMs=frame_LMs, frame_LVs=frame_LVs, ext_force=ext_force[i])
-        opti_activation, joint_torque = static_opti(tmp_frame, sub, muscle_group=muscle_group, frameNum=i, init_opti=init_act, cost=1)
+        opti_activation, joint_torque = static_opti(tmp_frame, sub, muscle_group=muscle_group, frameNum=i, init_opti=init_act, cost=cost)
         init_act = opti_activation
 
         muscle_acts['TRI'].append(opti_activation[0])
@@ -80,15 +84,39 @@ def start_simulation(PATH, testNum):
     # prediction = np.array(prediction)
     # prediction_tosave = prediction.transpose()
     prediction_tosave = pd.DataFrame(prediction)
-    prediction_tosave.to_excel(PATH + 'test' + str(testNum) + 'result_without_Fpe_cost_01.xlsx')
+    prediction_tosave.to_excel(PATH + 'test' + str(testNum) + 'result_without_Fpe_cost_02.xlsx')
 
 
 PATH = './IsometricData/LRL/test'
-
+cost_f = 2
+computing_pool = list()
 testNums = [1, 2, 3, 4, 5]
+
+# for num in testNums:
+#     print('start simulation for test %d' % num)
+#     testPATH = PATH + str(num) + '/'
+#     tmp_thread = threading.Thread(target=start_simulation, args=[testPATH, num, cost_f])
+#     computing_pool.append(tmp_thread)
+#
+# for th in computing_pool:
+#     th.start()
+# for th in computing_pool:
+#     th.join()
+    # start_simulation(testPATH, num, cost=1)
+
+start_t = datetime.datetime.now()
+print("Local PC has %d Cores" % int(mp.cpu_count()))
+pool = mp.Pool(int(mp.cpu_count()))
 for num in testNums:
     print('start simulation for test %d' % num)
     testPATH = PATH + str(num) + '/'
-    start_simulation(testPATH, num)
+    # tmp_thread = threading.Thread(target=start_simulation, args=[testPATH, num, cost_f])
+    pool.apply_async(start_simulation, args=(testPATH, num, cost_f))
+
+end_t = datetime.datetime.now()
+
+elapsed_sec = (end_t - start_t).total_seconds()
+print('Computational time cost: %f sec' % elapsed_sec)
+
 
 

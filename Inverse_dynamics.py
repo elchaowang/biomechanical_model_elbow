@@ -188,8 +188,8 @@ def static_opti(frame, sub_info, muscle_group, frameNum, init_opti, cost=1):
         Fce = calculate_Fce_for_all(frame, muscle_group, act)
         cost = 0
         for i, muscle in enumerate(['TRIlong', 'BIClong', 'BRA', 'BRD', 'PRO']):
-            cost = ((Fce[muscle] + F_pe[muscle]) / muscle_group[muscle]) ** 2 + (
-                        (Fce[muscle] + F_pe[muscle]) / muscle_group[muscle].PCSA) ** 2
+            # cost = ((Fce[muscle] + F_pe[muscle]) / muscle_group[muscle]) ** 2 + (
+            #             (Fce[muscle] + F_pe[muscle]) / muscle_group[muscle].PCSA) ** 2
 
             cost = (Fce[muscle] / muscle_group[muscle].max_iso_force) ** 2 + (
                     Fce[muscle] / muscle_group[muscle].PCSA) ** 2
@@ -226,8 +226,9 @@ def static_opti(frame, sub_info, muscle_group, frameNum, init_opti, cost=1):
             slice(low_bound[2], high_bound[2], resolu[2]),
             slice(low_bound[3], high_bound[3], resolu[3]), slice(low_bound[4], high_bound[4], resolu[4])), finish=None)
         '''Optimization'''
-        result_pre = optimize.minimize(cost_f1, x_start, method='SLSQP', constraints=constrain, options={'maxiter': 1e4})
-    else:
+        result_pre = optimize.minimize(cost_f1, x_start, method='SLSQP', constraints=constrain,
+                                       options={'maxiter': 1e4})
+    elif cost == 2:
         x_start = optimize.brute(cost_f2, (
             slice(low_bound[0], high_bound[0], resolu[0]), slice(low_bound[1], high_bound[1], resolu[1]),
             slice(low_bound[2], high_bound[2], resolu[2]),
