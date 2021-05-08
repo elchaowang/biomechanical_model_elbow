@@ -21,7 +21,7 @@ testNums = [1, 2, 3, 4, 5]
 
 for num in testNums:
     print('num is ', num)
-    SubPATH = './IsometricData/YY/test' + str(num) + '/'
+    SubPATH = './IsometricData/LRL/test' + str(num) + '/'
     flex_MA_prof = SubPATH + 'sup_at90_muscle_moment_arm_against_elbowflexion.xlsx'
     flex_LM_prof = SubPATH + 'sup_at90_normalized_muscle_fiber_length_against_elbowflexion.xlsx'
     output_filename = SubPATH + 'recons.trc'
@@ -39,7 +39,7 @@ for num in testNums:
     target_len = len(trig_elbow_flexion)
     ext_force = upsample_ext_force(ext_force_file, target_len, fs=2000)
     # norm_bi, norm_ti = normalization(trig_bi), normalization(trig_ti)
-    generate_reconst_data(trig_time, trig_elbow_flexion, trig_elbow_acce, trig_bi, trig_ti, flex_MA_prof, flex_LM_prof, ext_force, output_filename)
+    generate_reconst_data(trig_time, trig_elbow_flexion, trig_supination, trig_elbow_acce, trig_bi, trig_ti, flex_MA_prof, flex_LM_prof, ext_force, output_filename)
 
 
 

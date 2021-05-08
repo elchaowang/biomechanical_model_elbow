@@ -158,7 +158,7 @@ def get_solution_range(init_opt):
     return low_bound, high_bound, resolu
 
 
-def static_opti(frame, sub_info, muscle_group, frameNum, init_opti):
+def static_opti(frame, sub_info, muscle_group, frameNum, init_opti, cost=1):
     torque_g, torque_ex, torque_acce = motion_equation(frame, sub_info)
     joint_torque = torque_g + torque_ex
     # joint_angle = [np.pi - frame.elbow_flexion, frame.elbow_supination]
@@ -167,11 +167,8 @@ def static_opti(frame, sub_info, muscle_group, frameNum, init_opti):
     print(
         '\rframeNumber: %d\tBIC F_pe: %.3f\tTRI F_pe: %.4f\tElbow flexion: %.3f\tGravity torque: %.6f\tExternal torque: %.4f\tAcceleration torque: %.4f' % (
         frameNum, F_pe['BIClong'], F_pe['TRIlong'], frame.elbow_flexion, torque_g, torque_ex, torque_acce), flush=True, end='')
-    # print('\rThe Elbow flexion:', frame.elbow_flexion * 57.29578, 'Moment Arm:', frame.frame_MAs, '\rComputing frame:', frameNum, flush=True, end='')
-    # print('\rThe solution progress: low boundary: %f, high boundary: %f, resolution: %f'% (low_bound),'Computing frame:', frameNum, flush=True, end='')
 
-    # @jit(float64(float64[:]), parallel=True)
-    def cost_f(act):
+    def cost_f1(act):
         '''
         :param force: list object, length is 5, force_ce for all seletect muscle
         :return:
@@ -183,6 +180,21 @@ def static_opti(frame, sub_info, muscle_group, frameNum, init_opti):
             cost += (Fce[muscle] / muscle_group[muscle].PCSA) ** 2
         return cost
 
+    def cost_f2(act):
+        '''
+        :param force: list object, length is 5, force_ce for all seletect muscle
+        :return:
+        '''
+        Fce = calculate_Fce_for_all(frame, muscle_group, act)
+        cost = 0
+        for i, muscle in enumerate(['TRIlong', 'BIClong', 'BRA', 'BRD', 'PRO']):
+            cost = ((Fce[muscle] + F_pe[muscle]) / muscle_group[muscle]) ** 2 + (
+                        (Fce[muscle] + F_pe[muscle]) / muscle_group[muscle].PCSA) ** 2
+
+            cost = (Fce[muscle] / muscle_group[muscle].max_iso_force) ** 2 + (
+                    Fce[muscle] / muscle_group[muscle].PCSA) ** 2
+        return cost
+
     def subject_f(act):
         Fce = calculate_Fce_for_all(frame, muscle_group, act)
         st = 0
@@ -192,8 +204,6 @@ def static_opti(frame, sub_info, muscle_group, frameNum, init_opti):
         st = st - joint_torque
         return st
 
-    # max_act = 1.8
-    # min_act = 0
     constrain = (
         {'type': 'eq', 'fun': subject_f},
         {'type': 'ineq', 'fun': lambda act: high_bound[0] - act[0]},
@@ -207,14 +217,24 @@ def static_opti(frame, sub_info, muscle_group, frameNum, init_opti):
         {'type': 'ineq', 'fun': lambda act: act[3] - low_bound[3]},
         {'type': 'ineq', 'fun': lambda act: act[4] - low_bound[4]}
     )
-    x_start = optimize.brute(cost_f, (
-    slice(low_bound[0], high_bound[0], resolu[0]), slice(low_bound[1], high_bound[1], resolu[1]), slice(low_bound[2], high_bound[2], resolu[2]),
-    slice(low_bound[3], high_bound[3], resolu[3]), slice(low_bound[4], high_bound[4], resolu[4])), finish=None)
-    # x_start = optimize.brute(cost_f, (
-    # slice(min_act, max_act, 70), slice(min_act, max_act, 70),
-    # slice(min_act, max_act, 70), slice(min_act, max_act, 70),
-    # slice(min_act, max_act, 70)), finish=None)
-    result_pre = optimize.minimize(cost_f, x_start, method='SLSQP', constraints=constrain, options={'maxiter': 1e4})
+    if cost == 1:
+        '''
+        pre optimize
+        '''
+        x_start = optimize.brute(cost_f1, (
+            slice(low_bound[0], high_bound[0], resolu[0]), slice(low_bound[1], high_bound[1], resolu[1]),
+            slice(low_bound[2], high_bound[2], resolu[2]),
+            slice(low_bound[3], high_bound[3], resolu[3]), slice(low_bound[4], high_bound[4], resolu[4])), finish=None)
+        '''Optimization'''
+        result_pre = optimize.minimize(cost_f1, x_start, method='SLSQP', constraints=constrain, options={'maxiter': 1e4})
+    else:
+        x_start = optimize.brute(cost_f2, (
+            slice(low_bound[0], high_bound[0], resolu[0]), slice(low_bound[1], high_bound[1], resolu[1]),
+            slice(low_bound[2], high_bound[2], resolu[2]),
+            slice(low_bound[3], high_bound[3], resolu[3]), slice(low_bound[4], high_bound[4], resolu[4])), finish=None)
+        result_pre = optimize.minimize(cost_f2, x_start, method='SLSQP', constraints=constrain,
+                                       options={'maxiter': 1e4})
+
     opti_act = result_pre.x
     return opti_act, joint_torque
 

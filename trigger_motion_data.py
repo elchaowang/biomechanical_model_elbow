@@ -37,21 +37,21 @@ def trigger_motion_data(motion_df):
     '''
     # motion_df = pd.read_excel(motion_file, skiprows=range(0, 3))
     print(motion_df.keys())
-    # bi_emg = list(motion_df['Noraxon Ultium.BIClong (uV)'])
-    # ti_emg = list(motion_df['Noraxon Ultium.TRIlong (uV)'])
-    bi_emg = list(motion_df['Noraxon Ultium-Noraxon Ultium.BIClong (uV)'])
-    ti_emg = list(motion_df['Noraxon Ultium-Noraxon Ultium.TRIlong (uV)'])
+    bi_emg = list(motion_df['Noraxon Ultium.BIClong (uV)'])
+    ti_emg = list(motion_df['Noraxon Ultium.TRIlong (uV)'])
+    # bi_emg = list(motion_df['Noraxon Ultium-Noraxon Ultium.BIClong (uV)'])
+    # ti_emg = list(motion_df['Noraxon Ultium-Noraxon Ultium.TRIlong (uV)'])
 
     bi_act, ti_act = emg_2_activation(bi_emg), emg_2_activation(ti_emg)
     time_seq = list(motion_df['time'])
-    # elbow_flexion = list(motion_df['RT 肘关节屈曲 (deg)'])
-    elbow_flexion = list(motion_df['Noraxon MyoMotion-Joints-Elbow RT-Flexion (deg)'])
-    trig = list(motion_df['Noraxon Ultium-Noraxon Ultium.Sync (On)'])
-    # trig = list(motion_df['Noraxon Ultium.Sync (On)'])
-    # trig = list(motion_df['Noraxon Ultium.同步 (开)'])
+    elbow_flexion = list(motion_df['RT 肘关节屈曲 (deg)'])
+    # elbow_flexion = list(motion_df['Noraxon MyoMotion-Joints-Elbow RT-Flexion (deg)'])
+    # trig = list(motion_df['Noraxon Ultium-Noraxon Ultium.Sync (On)'])
+    # trig = list(motion_df['Noraxon Ultium.Sync (On)'])  # LFC
+    trig = list(motion_df['Noraxon Ultium.同步 (开)'])  # LRL
 
-    elbow_supination = list(motion_df['Noraxon MyoMotion-Joints-Wrist RT-Supination (deg)'])
-    # elbow_supination = list(motion_df['RT Wrist Supination (deg)'])
+    # elbow_supination = list(motion_df['Noraxon MyoMotion-Joints-Wrist RT-Supination (deg)'])
+    elbow_supination = list(motion_df['RT Wrist Supination (deg)'])
 
     start_ind, end_ind = 0, 0
     for i, sig in enumerate(trig):

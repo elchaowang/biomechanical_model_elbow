@@ -109,17 +109,17 @@ def get_lengthening_velo(time, LMs):
     return LM_velos
 
 
-def generate_reconst_data(time, elbow_flex, elbow_acce, bicep_emg, tricep_emg, flex_MA_prof, flex_LM_prof, ext_force, out_filename):
+def generate_reconst_data(time, elbow_flex, wrist_sup, elbow_acce, bicep_emg, tricep_emg, flex_MA_prof, flex_LM_prof, ext_force, out_filename):
     MAs, LMs = find_MAs_and_norm_lm(elbow_flex, flex_MA_prof, flex_LM_prof)
     LM_velos = get_lengthening_velo(time, LMs)
-    tmp_data = [time, elbow_flex, elbow_acce, MAs['TRIlong'], MAs['BIClong'], MAs['BRA'], MAs['BRD'], MAs['PRO'], LMs['TRIlong'],
+    tmp_data = [time, elbow_flex, elbow_acce, wrist_sup, MAs['TRIlong'], MAs['BIClong'], MAs['BRA'], MAs['BRD'], MAs['PRO'], LMs['TRIlong'],
                 LMs['BIClong'], LMs['BRA'], LMs['BRD'], LMs['PRO'], LM_velos['TRIlong'], LM_velos['BIClong'],
                 LM_velos['BRA'], LM_velos['BRD'], LM_velos['PRO'], ext_force, bicep_emg, tricep_emg]
     tmp_data = np.array(tmp_data)
     output_data = tmp_data.transpose()
     with open(out_filename, 'w') as out_f:
         out_f.write("Reconstructed Data File\n")
-        out_f.write("Frame\ttime\telbow flexion\telbow_acce\tMA-TRIlong\tMA-BIClong\tMA-BRA\tMA-BRD\tMA-PRO")
+        out_f.write("Frame\ttime\telbow_flex\telbow_acce\twrist_sup\tMA-TRIlong\tMA-BIClong\tMA-BRA\tMA-BRD\tMA-PRO")
         out_f.write("\tLM-TRIlong\tLM-BIClong\tLM-BRA\tLM-BRD\tLM-PRO")
         out_f.write("\tLV-TRIlong\tLV-BIClong\tLV-BRA\tLV-BRD\tLV-PRO\text_force\tBIClong-EMG\tTRIlong-EMG\n")
         for i in range(len(elbow_flex)):
@@ -130,7 +130,7 @@ def generate_reconst_data(time, elbow_flex, elbow_acce, bicep_emg, tricep_emg, f
     Frame = list()
     for i in range(len(time)):
         Frame.append(i)
-    tmp_dict = {'Frame': Frame, 'time': time, 'elbow_flex': elbow_flex, 'elbow_acce': elbow_acce,
+    tmp_dict = {'Frame': Frame, 'time': time, 'elbow_flex': elbow_flex, 'elbow_acce': elbow_acce, 'wrist_sup': wrist_sup,
               'MA-TRIlong': MAs['TRIlong'], 'MA-BIClong': MAs['BIClong'], 'MA-BRA': MAs['BRA'], 'MA-BRD': MAs['BRD'],
               'MA-PRO': MAs['PRO'], 'LM-TRIlong': LMs['TRIlong'], 'LM-BIClong': LMs['BIClong'], 'LM-BRA': LMs['BRA'], 'LM-BRD': LMs['BRD'],
               'LM-PRO': LMs['PRO'], 'LV-TRIlong': LM_velos['TRIlong'], 'LV-BIClong': LM_velos['BIClong'],
