@@ -159,8 +159,6 @@ def generate_reconst_data(time, elbow_flex, elbow_acce, bicep_emg, tricep_emg, f
 # plt.xlabel('x')
 # plt.ylabel('y')
 # plt.legend(loc=4) #指定legend的位置右下角
-# plt.title('polyfitting')
-# plt.show()
 
 # myMA_filename = 'sup_at90_muscle_moment_arm_against_elbowflexion.xlsx'
 # print(MA_df)

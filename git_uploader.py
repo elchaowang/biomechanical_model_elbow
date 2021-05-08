@@ -22,6 +22,7 @@ for script in py_scripts:
     g.add(script)
 
 g.commit("-m script auto update")
+g.remote()
 g.push()
 print('success~')
 
