@@ -167,6 +167,9 @@ def static_opti(frame, sub_info, muscle_group, frameNum, init_opti, cost=1):
     print(
         '\rframeNumber: %d\tBIC F_pe: %.3f\tTRI F_pe: %.4f\tElbow flexion: %.3f\tGravity torque: %.6f\tExternal torque: %.4f\tAcceleration torque: %.4f' % (
         frameNum, F_pe['BIClong'], F_pe['TRIlong'], frame.elbow_flexion, torque_g, torque_ex, torque_acce), flush=True, end='')
+    # print(
+    #     '\rframeNumber: %d\tBIC F_pe: %.3f\tTRI F_pe: %.4f\tElbow flexion: %.3f\tGravity torque: %.6f\tExternal torque: %.4f\tAcceleration torque: %.4f' % (
+    #         frameNum, F_pe['BIClong'], F_pe['TRIlong'], frame.elbow_flexion, torque_g, torque_ex, torque_acce))
 
     def cost_f1(act):
         '''
@@ -176,8 +179,8 @@ def static_opti(frame, sub_info, muscle_group, frameNum, init_opti, cost=1):
         Fce = calculate_Fce_for_all(frame, muscle_group, act)
         cost = 0
         for i, muscle in enumerate(['TRIlong', 'BIClong', 'BRA', 'BRD', 'PRO']):
-            # cost += ((Fce[muscle] + F_pe[muscle]) / muscle_group[muscle].PCSA)**2
-            cost += (Fce[muscle] / muscle_group[muscle].PCSA) ** 2
+            cost += ((Fce[muscle] + F_pe[muscle]) / muscle_group[muscle].PCSA)**2
+            # cost += (Fce[muscle] / muscle_group[muscle].PCSA) ** 2
         return cost
 
     def cost_f2(act):
@@ -188,19 +191,19 @@ def static_opti(frame, sub_info, muscle_group, frameNum, init_opti, cost=1):
         Fce = calculate_Fce_for_all(frame, muscle_group, act)
         cost = 0
         for i, muscle in enumerate(['TRIlong', 'BIClong', 'BRA', 'BRD', 'PRO']):
-            # cost = ((Fce[muscle] + F_pe[muscle]) / muscle_group[muscle]) ** 2 + (
-            #             (Fce[muscle] + F_pe[muscle]) / muscle_group[muscle].PCSA) ** 2
+            cost = ((Fce[muscle] + F_pe[muscle]) / muscle_group[muscle].max_iso_force) ** 3 + (
+                        (Fce[muscle] + F_pe[muscle]) / muscle_group[muscle].PCSA) ** 2
 
-            cost = (Fce[muscle] / muscle_group[muscle].max_iso_force) ** 2 + (
-                    Fce[muscle] / muscle_group[muscle].PCSA) ** 2
+            # cost = (Fce[muscle] / muscle_group[muscle].max_iso_force) ** 2 + (
+            #         Fce[muscle] / muscle_group[muscle].PCSA) ** 2
         return cost
 
     def subject_f(act):
         Fce = calculate_Fce_for_all(frame, muscle_group, act)
         st = 0
         for i, muscle in enumerate(['TRIlong', 'BIClong', 'BRA', 'BRD', 'PRO']):
-            # st += ((Fce[muscle] + F_pe[muscle]) * frame.frame_MAs[muscle])
-            st += (Fce[muscle] * frame.frame_MAs[muscle])
+            st += ((Fce[muscle] + F_pe[muscle]) * frame.frame_MAs[muscle])
+            # st += (Fce[muscle] * frame.frame_MAs[muscle])
         st = st - joint_torque
         return st
 

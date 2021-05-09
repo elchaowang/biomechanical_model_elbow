@@ -58,8 +58,8 @@ def writemyTRC(filename, data):
 # filename =
 # df = pd.read_excel(filename, skiprows=range(0, 3))
 # write_pickle('2021-03-30-16-43_TestSynch-3.txt', df)
-df = read_pickle('./IsometricData/YY_IMU/2021-04-21-16-13_SpasAssess_01-3.txt')
-
+df = read_pickle('./IsometricData/LRL/test1/2021-04-19-18-35_配置 1-2.txt')
+out_filename = './IsometricData/LRL/test1/joint_trajectory.trc'
 # print(df.keys())
 
 
@@ -115,7 +115,7 @@ for i in range(4):
         ps[i * 3 + 1][j], ps[i * 3 + 2][j], ps[i * 3 + 3][j] = rot_ps[0], rot_ps[1], rot_ps[2]
 
 rot_df = ps.transpose()
-out_filename = 'joint_trajectory.trc'
+
 writemyTRC(out_filename, rot_df)
 print(rot_df.shape, type(rot_df))
 # rot_df = pd.DataFrame(rot_df)

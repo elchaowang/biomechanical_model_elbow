@@ -50,22 +50,27 @@ def correlation(x, y):
 import pandas as pd
 from bilateral_filters import prediction_emg_filter, normalization
 from biomechanical_algorithms import emg_muscle_activation_interpretion
+import matplotlib.pyplot as plt
 
 
-df = pd.read_excel('./IsometricData/LRL/test1/recons.xlsx', skiprows=range(0, 1))
+df = pd.read_excel('./IsometricData/LRL/test1/recons.xlsx')
 bi_emg = df['BIClong-EMG']
 ti_emg = df['TRIlong-EMG']
 bi_emg = normalization(bi_emg)
 bi_emg = emg_muscle_activation_interpretion(bi_emg, A=-2.5)
 
-bi_pre_cs1_df = pd.read_excel('./IsometricData/LRL/test1/test1result_with_Fpe_cost1.xlsx')
+bi_pre_cs1_df = pd.read_excel('./IsometricData/LRL/test1/test1result_without_Fpe_cost_01.xlsx')
 bi_pre_cs1 = list(bi_pre_cs1_df['BIClong'])
 bi_pre_cs1 = prediction_emg_filter(bi_pre_cs1)
 bi_pre_cs1 = normalization(bi_pre_cs1)
 
-bi_pre_cs2_df = pd.read_excel('./IsometricData/LRL/test1/test1result_with_Fpe_cost2.xlsx')
+bi_pre_cs2_df = pd.read_excel('./IsometricData/LRL/test1/test1result_with_Fpe_cube_cost_02.xlsx')
 bi_pre_cs2 = list(bi_pre_cs2_df['BIClong'])
 bi_pre_cs2 = prediction_emg_filter(bi_pre_cs2)
 bi_pre_cs2 = normalization(bi_pre_cs2)
 
-
+plt.plot(bi_emg, label='BIC Measured')
+plt.plot(bi_pre_cs1, label='BIC Predicted without cost 1')
+plt.plot(bi_pre_cs2, label='BIC Predicted with cost 2')
+plt.legend(loc='upper left')
+plt.show()

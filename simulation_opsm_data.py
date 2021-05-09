@@ -84,39 +84,45 @@ def start_simulation(PATH, testNum, cost):
     # prediction = np.array(prediction)
     # prediction_tosave = prediction.transpose()
     prediction_tosave = pd.DataFrame(prediction)
-    prediction_tosave.to_excel(PATH + 'test' + str(testNum) + 'result_without_Fpe_cost_02.xlsx')
+    prediction_tosave.to_excel(PATH + 'test' + str(testNum) + 'result_with_Fpe_cube_cost_02.xlsx')
 
 
-PATH = './IsometricData/LRL/test'
-cost_f = 2
-computing_pool = list()
-testNums = [1, 2, 3, 4, 5]
+if __name__ == '__main__':
 
-# for num in testNums:
-#     print('start simulation for test %d' % num)
-#     testPATH = PATH + str(num) + '/'
-#     tmp_thread = threading.Thread(target=start_simulation, args=[testPATH, num, cost_f])
-#     computing_pool.append(tmp_thread)
-#
-# for th in computing_pool:
-#     th.start()
-# for th in computing_pool:
-#     th.join()
-    # start_simulation(testPATH, num, cost=1)
+    PATH = './IsometricData/LRL/test'
+    cost_f = 2
+    computing_pool = list()
+    testNums = [1, 2, 3, 4, 5]
 
-start_t = datetime.datetime.now()
-print("Local PC has %d Cores" % int(mp.cpu_count()))
-pool = mp.Pool(int(mp.cpu_count()))
-for num in testNums:
-    print('start simulation for test %d' % num)
-    testPATH = PATH + str(num) + '/'
-    # tmp_thread = threading.Thread(target=start_simulation, args=[testPATH, num, cost_f])
-    pool.apply_async(start_simulation, args=(testPATH, num, cost_f))
+    # for num in testNums:
+    #     print('start simulation for test %d' % num)
+    #     testPATH = PATH + str(num) + '/'
+    #     start_simulation(testPATH, num, cost=cost_f)
+    #     tmp_thread = threading.Thread(target=start_simulation, args=[testPATH, num, cost_f])
+    #     computing_pool.append(tmp_thread)
+    #
+    # for th in computing_pool:
+    #     th.start()
+    # for th in computing_pool:
+    #     th.join()
+        # start_simulation(testPATH, num, cost=1)
 
-end_t = datetime.datetime.now()
-
-elapsed_sec = (end_t - start_t).total_seconds()
-print('Computational time cost: %f sec' % elapsed_sec)
+    # multiprocessing
+    start_t = datetime.datetime.now()
+    print("Local PC has %d Cores" % int(mp.cpu_count()))
+    pool = mp.Pool(5)
+    for num in testNums:
+        print('start simulation for test %d' % num)
+        testPATH = PATH + str(num) + '/'
+        # tmp_thread = threading.Thread(target=start_simulation, args=[testPATH, num, cost_f])
+        pool.apply_async(start_simulation, args=(testPATH, num, cost_f))
+        # time.sleep(10)
+    print('Waiting for computing...')
+    pool.close()
+    pool.join()
+    end_t = datetime.datetime.now()
+    elapsed_sec = (end_t - start_t).total_seconds()
+    print('Computational time cost: %f sec' % elapsed_sec)
 
 
 
