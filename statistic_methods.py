@@ -51,26 +51,36 @@ import pandas as pd
 from bilateral_filters import prediction_emg_filter, normalization
 from biomechanical_algorithms import emg_muscle_activation_interpretion
 import matplotlib.pyplot as plt
+from scipy import stats
 
 
-df = pd.read_excel('./IsometricData/LRL/test1/recons.xlsx')
+df = pd.read_excel('./IsometricData/LFC/test5/recons.xlsx')
 bi_emg = df['BIClong-EMG']
 ti_emg = df['TRIlong-EMG']
 bi_emg = normalization(bi_emg)
 bi_emg = emg_muscle_activation_interpretion(bi_emg, A=-2.5)
 
-bi_pre_cs1_df = pd.read_excel('./IsometricData/LRL/test1/test1result_without_Fpe_cost_01.xlsx')
+
+
+bi_pre_cs1_df = pd.read_excel('./IsometricData/LFC/test5/test5result_with_Fpe.xlsx')
 bi_pre_cs1 = list(bi_pre_cs1_df['BIClong'])
 bi_pre_cs1 = prediction_emg_filter(bi_pre_cs1)
 bi_pre_cs1 = normalization(bi_pre_cs1)
+print(len(bi_pre_cs1), len(bi_emg))
+result_ = stats.pearsonr(bi_pre_cs1, bi_emg)
+print(result_)
 
-bi_pre_cs2_df = pd.read_excel('./IsometricData/LRL/test1/test1result_with_Fpe_cube_cost_02.xlsx')
+# bi_pre_cs2_df = pd.read_excel('./IsometricData/LRL/test1/test1result_with_Fpe_cube_cost_02.xlsx')
+bi_pre_cs2_df = pd.read_excel('./IsometricData/LFC/test5/test5result_with_Fpe_cube_cost_01_modified_muscledata.xlsx')
 bi_pre_cs2 = list(bi_pre_cs2_df['BIClong'])
 bi_pre_cs2 = prediction_emg_filter(bi_pre_cs2)
 bi_pre_cs2 = normalization(bi_pre_cs2)
+print(len(bi_pre_cs2), len(bi_emg))
+result_ = stats.pearsonr(bi_pre_cs2, bi_emg)
+print(result_)
 
 plt.plot(bi_emg, label='BIC Measured')
 plt.plot(bi_pre_cs1, label='BIC Predicted without cost 1')
-plt.plot(bi_pre_cs2, label='BIC Predicted with cost 2')
+plt.plot(bi_pre_cs2, label='BIC Predicted with cost 1 modified muscle')
 plt.legend(loc='upper left')
 plt.show()

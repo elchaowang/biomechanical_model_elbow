@@ -47,8 +47,8 @@ def trigger_motion_data(motion_df):
     elbow_flexion = list(motion_df['RT 肘关节屈曲 (deg)'])
     # elbow_flexion = list(motion_df['Noraxon MyoMotion-Joints-Elbow RT-Flexion (deg)'])
     # trig = list(motion_df['Noraxon Ultium-Noraxon Ultium.Sync (On)'])
-    # trig = list(motion_df['Noraxon Ultium.Sync (On)'])  # LFC
-    trig = list(motion_df['Noraxon Ultium.同步 (开)'])  # LRL
+    trig = list(motion_df['Noraxon Ultium.Sync (On)'])  # LFC
+    # trig = list(motion_df['Noraxon Ultium.同步 (开)'])  # LRL
 
     # elbow_supination = list(motion_df['Noraxon MyoMotion-Joints-Wrist RT-Supination (deg)'])
     elbow_supination = list(motion_df['RT Wrist Supination (deg)'])
@@ -65,7 +65,7 @@ def trigger_motion_data(motion_df):
     trig_supination = elbow_supination[start_ind:end_ind]
     for i in range(len(trig_elbow_flexion)):
         trig_elbow_flexion[i] = trig_elbow_flexion[i] * np.pi / 180
-        trig_supination[i] = trig_supination[i] * np.pi / 180
+        # trig_supination[i] = trig_supination[i] * np.pi / 180
     elbow_acce = get_joint_acceleration(time_seq, elbow_flexion)
     trig_elbow_acce = elbow_acce[start_ind: end_ind]
 

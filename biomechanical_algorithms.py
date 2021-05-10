@@ -31,68 +31,106 @@ def emg_muscle_activation_interpretion(emg, A=-1):
     return a_t
 
 
-def find_MAs_and_norm_lm(joint_flexion, MA_filename, n_lm_filename):
+def get_corre_filename(imu_ps_angle):
+    angle_range = np.arange(181)
+    index = (np.abs(imu_ps_angle - angle_range)).argmin()
+    return index
+
+
+def get_mot_dict(filename):
+    df_ = {'time': list(), 'elbow_flexion': list(), 'BIClong': list(), 'BRA': list(), 'BRD': list(), 'PT': list(), 'TRIlong': list()}
+    Flag = True
+    with open(filename) as mot:
+        for i, line in enumerate(mot):
+            if i > 5:
+                line = line.replace(' ', '')
+                line = line.replace('\n', '')
+                ls = line.split("\t")
+                if i == 6:
+                    for key in ['BIClong', 'BRA', 'BRD', 'PT', 'TRIlong']:
+                        if key not in ls:
+                            Flag = False
+                if i > 6 and Flag:
+                    df_['time'].append(int(float(ls[0])))
+                    df_['elbow_flexion'].append((float(ls[1])))
+                    df_['BIClong'].append((float(ls[2])))
+                    df_['BRA'].append((float(ls[3])))
+                    df_['BRD'].append((float(ls[4])))
+                    df_['PT'].append((float(ls[5])))
+                    df_['TRIlong'].append((float(ls[6])))
+        df_ = pd.DataFrame(df_)
+        return df_
+
+
+def find_MAs_and_norm_lm(joint_flexion, wrist_sup, SubPath):
     MAs = {'TRIlong': list(), 'BIClong': list(), 'BRA': list(), 'BRD': list(), 'PRO': list()}
     LMs = {'TRIlong': list(), 'BIClong': list(), 'BRA': list(), 'BRD': list(), 'PRO': list()}
-    LM_funcs = get_norm_muscle_fiber_length(n_lm_filename)
-    MA_funcs = get_MAs_funcs(MA_filename)
+    LM_funcs = get_norm_muscle_fiber_length(SubPath)
+    MA_funcs = get_MAs_funcs(SubPath)
     for i in range(len(joint_flexion)):
+        cur_ps = get_corre_filename(wrist_sup[i])
+        funcNum = int(180 - cur_ps)
         for muscle in ['TRIlong', 'BIClong', 'BRA', 'BRD', 'PRO']:
-            tmp_MA = MA_funcs[muscle](joint_flexion[i])
-            tmp_LM = LM_funcs[muscle](joint_flexion[i])
+            tmp_MA = MA_funcs[muscle][funcNum](joint_flexion[i])
+            tmp_LM = LM_funcs[muscle][funcNum](joint_flexion[i])
             MAs[muscle].append(tmp_MA)
             LMs[muscle].append(tmp_LM)
     return MAs, LMs
 
 
-def get_MAs_funcs(MA_filename):
-    MA_funcs = {'TRIlong': 0, 'BIClong': 0, 'BRA': 0, 'BRD': 0, 'PRO': 0}
-    MA_df = pd.read_excel(MA_filename, skiprows=range(0, 6))
-    MA_BIC, MA_TRI, MA_BRA, MA_BRD, MA_PRO = list(MA_df['BIClong']), list(MA_df['TRIlong']), list(MA_df['BRA']), list(
-        MA_df['BRD']), list(MA_df['PT'])
-    joint_angle = list(MA_df['/jointset/elbow/elbow_flexion/value'])
-    for i in range(len(joint_angle)):
-        joint_angle[i] = joint_angle[i] * np.pi / 180.0
-    func_tri = np.polyfit(joint_angle, MA_TRI, 35)
-    MA_funcs['TRIlong'] = np.poly1d(func_tri)
+def get_MAs_funcs(SubPath):
+    MA_funcs = {'TRIlong': list(), 'BIClong': list(), 'BRA': list(), 'BRD': list(), 'PRO': list()}
+    for i in range(181):
+        filename = SubPath + 'MA_Sup_at_' + str(i) + '.mot'
+        MA_df = get_mot_dict(filename)
+        MA_BIC, MA_TRI, MA_BRA, MA_BRD, MA_PRO = list(MA_df['BIClong']), list(MA_df['TRIlong']), list(
+            MA_df['BRA']), list(
+            MA_df['BRD']), list(MA_df['PT'])
+        joint_angle = list(MA_df['elbow_flexion'])
+        for i in range(len(joint_angle)):
+            joint_angle[i] = joint_angle[i] * np.pi / 180.0
+        func_tri = np.polyfit(joint_angle, MA_TRI, 35)
+        MA_funcs['TRIlong'].append(np.poly1d(func_tri))
 
-    func_bic= np.polyfit(joint_angle, MA_BIC, 8)
-    MA_funcs['BIClong'] = np.poly1d(func_bic)
+        func_bic= np.polyfit(joint_angle, MA_BIC, 8)
+        MA_funcs['BIClong'].append(np.poly1d(func_bic))
 
-    func_bra = np.polyfit(joint_angle, MA_BRA, 38)
-    MA_funcs['BRA'] = np.poly1d(func_bra)
+        func_bra = np.polyfit(joint_angle, MA_BRA, 38)
+        MA_funcs['BRA'].append(np.poly1d(func_bra))
 
-    func_brd = np.polyfit(joint_angle, MA_BRD, 35)
-    MA_funcs['BRD'] = np.poly1d(func_brd)
+        func_brd = np.polyfit(joint_angle, MA_BRD, 35)
+        MA_funcs['BRD'].append(np.poly1d(func_brd))
 
-    func_pro = np.polyfit(joint_angle, MA_PRO, 15)
-    MA_funcs['PRO'] = np.poly1d(func_pro)
+        func_pro = np.polyfit(joint_angle, MA_PRO, 15)
+        MA_funcs['PRO'].append(np.poly1d(func_pro))
     return MA_funcs
 
 
-def get_norm_muscle_fiber_length(LM_filename):
-    norm_l_m_funcs = {'TRIlong': 0, 'BIClong': 0, 'BRA': 0, 'BRD': 0, 'PRO': 0}
-    norm_l_m_df = pd.read_excel(LM_filename, skiprows=range(0, 6))
-    norm_l_m_BIC, norm_l_m_TRI, norm_l_m_BRA, norm_l_m_BRD, norm_l_m_PRO = list(norm_l_m_df['BIClong']), list(
-        norm_l_m_df['TRIlong']), list(norm_l_m_df['BRA']), list(norm_l_m_df['BRD']), list(norm_l_m_df['PT'])
-    joint_angle = list(norm_l_m_df['/jointset/elbow/elbow_flexion/value'])
-    for i in range(len(joint_angle)):
-        joint_angle[i] = joint_angle[i] * np.pi / 180.0
+def get_norm_muscle_fiber_length(SubPath):
+    norm_l_m_funcs = {'TRIlong': list(), 'BIClong': list(), 'BRA': list(), 'BRD': list(), 'PRO': list()}
+    for i in range(181):
+        filename = SubPath + 'Sup_at_' + str(i) + '.mot'
+        norm_l_m_df = get_mot_dict(filename)
+        norm_l_m_BIC, norm_l_m_TRI, norm_l_m_BRA, norm_l_m_BRD, norm_l_m_PRO = list(norm_l_m_df['BIClong']), list(
+            norm_l_m_df['TRIlong']), list(norm_l_m_df['BRA']), list(norm_l_m_df['BRD']), list(norm_l_m_df['PT'])
+        joint_angle = list(norm_l_m_df['elbow_flexion'])
+        for i in range(len(joint_angle)):
+            joint_angle[i] = joint_angle[i] * np.pi / 180.0
 
-    func_tri = np.polyfit(joint_angle, norm_l_m_TRI, 5)
-    norm_l_m_funcs['TRIlong'] = np.poly1d(func_tri)
+        func_tri = np.polyfit(joint_angle, norm_l_m_TRI, 5)
+        norm_l_m_funcs['TRIlong'].append(np.poly1d(func_tri))
 
-    func_bic = np.polyfit(joint_angle, norm_l_m_BIC, 5)
-    norm_l_m_funcs['BIClong'] = np.poly1d(func_bic)
+        func_bic = np.polyfit(joint_angle, norm_l_m_BIC, 5)
+        norm_l_m_funcs['BIClong'].append(np.poly1d(func_bic))
 
-    func_bra = np.polyfit(joint_angle, norm_l_m_BRA, 5)
-    norm_l_m_funcs['BRA'] = np.poly1d(func_bra)
+        func_bra = np.polyfit(joint_angle, norm_l_m_BRA, 5)
+        norm_l_m_funcs['BRA'].append(np.poly1d(func_bra))
 
-    func_brd = np.polyfit(joint_angle, norm_l_m_BRD, 5)
-    norm_l_m_funcs['BRD'] = np.poly1d(func_brd)
+        func_brd = np.polyfit(joint_angle, norm_l_m_BRD, 5)
+        norm_l_m_funcs['BRD'].append(np.poly1d(func_brd))
 
-    func_pro = np.polyfit(joint_angle, norm_l_m_PRO, 5)
-    norm_l_m_funcs['PRO'] = np.poly1d(func_pro)
+        func_pro = np.polyfit(joint_angle, norm_l_m_PRO, 5)
+        norm_l_m_funcs['PRO'].append(np.poly1d(func_pro))
     return norm_l_m_funcs
 
 
@@ -109,8 +147,8 @@ def get_lengthening_velo(time, LMs):
     return LM_velos
 
 
-def generate_reconst_data(time, elbow_flex, wrist_sup, elbow_acce, bicep_emg, tricep_emg, flex_MA_prof, flex_LM_prof, ext_force, out_filename):
-    MAs, LMs = find_MAs_and_norm_lm(elbow_flex, flex_MA_prof, flex_LM_prof)
+def generate_reconst_data(time, elbow_flex, wrist_sup, elbow_acce, bicep_emg, tricep_emg, SubPath, ext_force, out_filename):
+    MAs, LMs = find_MAs_and_norm_lm(elbow_flex, wrist_sup, SubPath)
     LM_velos = get_lengthening_velo(time, LMs)
     tmp_data = [time, elbow_flex, elbow_acce, wrist_sup, MAs['TRIlong'], MAs['BIClong'], MAs['BRA'], MAs['BRD'], MAs['PRO'], LMs['TRIlong'],
                 LMs['BIClong'], LMs['BRA'], LMs['BRD'], LMs['PRO'], LM_velos['TRIlong'], LM_velos['BIClong'],

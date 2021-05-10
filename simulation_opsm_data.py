@@ -13,12 +13,12 @@ import time
 
 
 #  YY 74.5 186   LFC 102 189
-# sub = SUB(M_fh=2.244, l_r=0.13104, l_h=0.19, l_f=0.27)  #  LFC
-# muscle_group = {'TRIlong': Muscle('TRIlong', PCSA=15.93, max_iso_force=771.8 * 1.6, LM_opti=0.14954786938536857),
-#                 'BIClong': Muscle('BIClong', PCSA=5.28, max_iso_force=525.1 * 1.6, LM_opti=0.1274375141444374),
-#                 'BRA': Muscle('BRA', 6.18, max_iso_force=1177.37 * 1.4, LM_opti=0.09412172039927078),
-#                 'BRD': Muscle('BRD', 1.7, max_iso_force=276.0 * 1.4, LM_opti=0.180769053337085),
-#                 'PRO': Muscle('PRO', 4.11, max_iso_force=557.2 * 1.4, LM_opti=0.0510547516322843)}
+sub = SUB(M_fh=2.244, l_r=0.13104, l_h=0.19, l_f=0.27)  # LFC
+muscle_group = {'TRIlong': Muscle('TRIlong', PCSA=15.93, max_iso_force=771.8 * 1.6, LM_opti=0.14954786938536857),
+                'BIClong': Muscle('BIClong', PCSA=5.28, max_iso_force=525.1 * 1.6, LM_opti=0.1274375141444374),
+                'BRA': Muscle('BRA', 6.18, max_iso_force=1177.37 * 1.4, LM_opti=0.09412172039927078),
+                'BRD': Muscle('BRD', 1.7, max_iso_force=276.0 * 1.4, LM_opti=0.180769053337085),
+                'PRO': Muscle('PRO', 4.11, max_iso_force=557.2 * 1.4, LM_opti=0.0510547516322843)}
 
 
 # sub = SUB(M_fh=1.639, l_r=0.13104, l_h=0.20, l_f=0.28)  #  YY
@@ -29,12 +29,12 @@ import time
 #                 'PRO': Muscle('PRO', 4.11, max_iso_force=557.2 * 0.6, LM_opti=0.05360455206381705)}
 
 
-sub = SUB(M_fh=1.683, l_r=0.1287, l_h=0.196, l_f=0.275)  # LRL
-muscle_group = {'TRIlong': Muscle('TRIlong', PCSA=15.93, max_iso_force=771.8 * 1, LM_opti=0.13051784157517385),
-                'BIClong': Muscle('BIClong', PCSA=5.28, max_iso_force=525.1 * 1, LM_opti=0.11551281106132918),
-                'BRA': Muscle('BRA', 6.18, max_iso_force=1177.37 * 1, LM_opti=0.08519797910711775),
-                'BRD': Muscle('BRD', 1.7, max_iso_force=276.0 * 1, LM_opti=0.1804005529459397),
-                'PRO': Muscle('PRO', 4.11, max_iso_force=557.2 * 1, LM_opti=0.051972967699792136)}
+# sub = SUB(M_fh=1.683, l_r=0.1287, l_h=0.196, l_f=0.275)  # LRL
+# muscle_group = {'TRIlong': Muscle('TRIlong', PCSA=15.93, max_iso_force=771.8 * 1, LM_opti=0.13051784157517385),
+#                 'BIClong': Muscle('BIClong', PCSA=5.28, max_iso_force=525.1 * 1, LM_opti=0.11551281106132918),
+#                 'BRA': Muscle('BRA', 6.18, max_iso_force=1177.37 * 1, LM_opti=0.08519797910711775),
+#                 'BRD': Muscle('BRD', 1.7, max_iso_force=276.0 * 1, LM_opti=0.1804005529459397),
+#                 'PRO': Muscle('PRO', 4.11, max_iso_force=557.2 * 1, LM_opti=0.051972967699792136)}
 
 
 def start_simulation(PATH, testNum, cost):
@@ -84,13 +84,13 @@ def start_simulation(PATH, testNum, cost):
     # prediction = np.array(prediction)
     # prediction_tosave = prediction.transpose()
     prediction_tosave = pd.DataFrame(prediction)
-    prediction_tosave.to_excel(PATH + 'test' + str(testNum) + 'result_with_Fpe_cube_cost_02.xlsx')
+    prediction_tosave.to_excel(PATH + 'test' + str(testNum) + 'result_with_Fpe_cube_cost_01_modified_muscledata.xlsx')
 
 
 if __name__ == '__main__':
 
-    PATH = './IsometricData/LRL/test'
-    cost_f = 2
+    PATH = './IsometricData/LFC/test'
+    cost_f = 1
     computing_pool = list()
     testNums = [1, 2, 3, 4, 5]
 
