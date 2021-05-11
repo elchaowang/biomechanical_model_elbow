@@ -92,7 +92,7 @@ def get_MAs_funcs(SubPath):
         func_tri = np.polyfit(joint_angle, MA_TRI, 35)
         MA_funcs['TRIlong'].append(np.poly1d(func_tri))
 
-        func_bic= np.polyfit(joint_angle, MA_BIC, 8)
+        func_bic = np.polyfit(joint_angle, MA_BIC, 8)
         MA_funcs['BIClong'].append(np.poly1d(func_bic))
 
         func_bra = np.polyfit(joint_angle, MA_BRA, 38)

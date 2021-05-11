@@ -21,7 +21,7 @@ testNums = [1, 2, 3, 4, 5]
 
 for num in testNums:
     print('num is ', num)
-    SubPATH = './IsometricData/LFC/'
+    SubPATH = './IsometricData/FCL/'
     pickle_path = SubPATH + 'test' + str(num) + '/'
     Muscle_PATH = SubPATH + 'MUSCLE/'
 
