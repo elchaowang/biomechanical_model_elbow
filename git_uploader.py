@@ -3,7 +3,7 @@ import os
 
 
 def get_all_scripts(PATH):
-    files = os.listdir(dirFile)
+    files = os.listdir(PATH)
     scripts = list()
     for item in files:
         if item[-2:] == 'py':
